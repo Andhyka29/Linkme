@@ -399,6 +399,7 @@
         let categories = [];
         let activeCategory = 'all';
         let isEditing = false;
+        let csrfToken = '';
 
         // Check auth on load
         async function checkAuth() {
@@ -417,10 +418,27 @@
             }
         }
 
+        // Fetch CSRF token
+        async function fetchCsrfToken() {
+            try {
+                const res = await fetch('/api/csrf');
+                const data = await res.json();
+                if (data.success) {
+                    csrfToken = data.csrf_token;
+                }
+            } catch (e) {
+                console.error('Failed to fetch CSRF token:', e);
+            }
+        }
+
         // Get CSRF token
         function getCsrfToken() {
-            return document.querySelector('input[name="csrf_token"]')?.value || '';
+            return csrfToken;
         }
+
+        // Initialize on load
+        fetchCsrfToken();
+        checkAuth();
 
         // Show view
         function showView(view) {
